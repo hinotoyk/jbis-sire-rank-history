@@ -193,16 +193,31 @@ function renderBar() {
       axisLine: { lineStyle: { color: T.axis } },
       axisTick: { show: false },
     },
-    series: [{
-      type: "bar",
-      data: top.map((r) => r.prizeOverall ?? 0),
-      barMaxWidth: 15,
-      itemStyle: {
-        borderRadius: [0, 2, 2, 0],
-        color: (p) => (p.dataIndex === 0 ? T.accent : p.dataIndex < 3 ? T.bar2 : T.bar),
+    series: [
+      {
+        name: "賞金重賞",
+        type: "bar",
+        stack: "prize",
+        data: top.map((r) => r.prizeGraded ?? 0),
+        barMaxWidth: 15,
+        itemStyle: { color: T.bar },
       },
-      label: { show: true, position: "right", fontSize: 10, color: T.muted, formatter: (p) => fmt(p.value, 1) },
-    }],
+      {
+        name: "重賞以外",
+        type: "bar",
+        stack: "prize",
+        data: top.map((r) => Math.max(0, (r.prizeOverall ?? 0) - (r.prizeGraded ?? 0))),
+        barMaxWidth: 15,
+        itemStyle: { borderRadius: [0, 2, 2, 0], color: T.accent },
+        label: {
+          show: true,
+          position: "right",
+          fontSize: 10,
+          color: T.muted,
+          formatter: (p) => fmt(top[p.dataIndex].prizeOverall, 1), // 柱端标注 = 賞金全般总额
+        },
+      },
+    ],
   }, true);
 }
 
