@@ -1,0 +1,13 @@
+{
+  "name": "jbis-sire-rank-history",
+  "version": "1.2.0",
+  "private": true,
+  "type": "module",
+  "description": "JBIS 种马排名（リーディングサイアー）每日历史记录与 ECharts 展示",
+  "scripts": {
+    "collect": "node src/collect.js",
+    "build": "node src/build-site.js",
+    "serve": "node src/server.js",
+    "start": "node src/collect.js && node src/build-site.js && node src/server.js"
+  }
+}

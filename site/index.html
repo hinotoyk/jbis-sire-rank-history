@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>種牡馬ランキング · JBIS Sire Rankings</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <div class="brand">
+      <b>種牡馬ランキング</b>
+      <span>SIRE RANKINGS · JBIS</span>
+    </div>
+    <div class="meta" id="meta">加载中…</div>
+  </div>
+  <nav id="type-tabs" class="tabs" aria-label="榜单类型"></nav>
+  <nav id="year-switch" class="year-switch" aria-label="年度"></nav>
+</header>
+
+<main>
+  <section class="hero" aria-live="polite">
+    <div class="hero-left">
+      <span class="hero-rank"><small>No.</small><b id="hero-no">1</b></span>
+      <div class="hero-who">
+        <span class="hero-sub" id="hero-sub">—</span>
+        <span class="hero-name" id="hero-name">—</span>
+      </div>
+    </div>
+    <dl class="hero-stats" id="hero-stats"></dl>
+  </section>
+
+  <div class="grid">
+    <section class="panel">
+      <h2 class="panel-title">賞金全般<span>Top-20 · 万円</span></h2>
+      <div id="chart-bar" class="chart"></div>
+    </section>
+    <section class="panel">
+      <h2 class="panel-title">排名曲线<span>Top-3 + コントレイル · 点行增减 · x 轴随期间</span></h2>
+      <div id="chart-line" class="chart"></div>
+      <p class="hint">每日快照积累后自动成曲线；x 轴粒度随「期間」的 日/周/月/年 切换（每桶取最晚快照）；y 轴按已选名次自动缩放；点击明细表行增减（上限 12）。</p>
+    </section>
+  </div>
+
+  <section class="panel wide">
+    <div class="row-head">
+      <h2 class="panel-title">明細<span id="detail-range">1–…</span></h2>
+      <div class="period-switch" id="period-switch">
+        <span class="ps-label">期間</span>
+        <button data-p="daily" class="on">日</button>
+        <button data-p="weekly">周</button>
+        <button data-p="monthly">月</button>
+        <button data-p="yearly">年</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table id="rank-table">
+        <thead>
+          <tr>
+            <th class="c-rank">順位</th>
+            <th class="c-name">種牡馬名</th>
+            <th class="c-delta">Δ順位</th>
+            <th>出走 回/頭</th>
+            <th>勝利 回/頭</th>
+            <th>重賞 回/頭</th>
+            <th>AEI 全/重</th>
+            <th>賞金全般 万円</th>
+            <th>Δ賞金</th>
+            <th class="c-name">代表産駒</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div class="table-more" id="table-more"></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <span>数据来源 JBIS（jbis.or.jp）</span>
+  <span>每日快照 · 全量收录</span>
+  <span>图表 Apache ECharts · 本地自托管</span>
+</footer>
+
+<script src="vendor/echarts.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

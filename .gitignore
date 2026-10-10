@@ -1,0 +1,11 @@
+# 依赖与临时产物
+node_modules/
+
+# 站点构建产物（由 src/build-site.js 生成，Pages 部署时上传 _site/）
+_site/
+
+# 工具临时目录
+.dsh-vision-router/
+
+# 日志
+*.log
