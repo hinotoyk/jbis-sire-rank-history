@@ -1,6 +1,9 @@
 # 依赖与临时产物
 node_modules/
 
+# IDE
+.idea/
+
 # 站点构建产物（由 src/build-site.js 生成，Pages 部署时上传 _site/）
 _site/
 
