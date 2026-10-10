@@ -200,7 +200,7 @@ function renderBar() {
         stack: "prize",
         data: top.map((r) => r.prizeGraded ?? 0),
         barMaxWidth: 15,
-        itemStyle: { color: T.bar },
+        itemStyle: { color: T.accent },
       },
       {
         name: "重賞以外",
@@ -208,7 +208,7 @@ function renderBar() {
         stack: "prize",
         data: top.map((r) => Math.max(0, (r.prizeOverall ?? 0) - (r.prizeGraded ?? 0))),
         barMaxWidth: 15,
-        itemStyle: { borderRadius: [0, 2, 2, 0], color: T.accent },
+        itemStyle: { borderRadius: [0, 2, 2, 0], color: T.bar },
         label: {
           show: true,
           position: "right",
