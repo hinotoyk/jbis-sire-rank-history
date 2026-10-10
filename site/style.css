@@ -90,8 +90,8 @@ body {
   margin: 0 auto;
   padding: 0 24px;
   display: flex;
-  gap: 24px;
-  overflow-x: auto;
+  flex-wrap: wrap; /* 窄屏换行而非横向滚动（滚动条会在右上角漏出 ▲▼ 小控件） */
+  gap: 2px 24px;
 }
 .tabs button {
   appearance: none;
