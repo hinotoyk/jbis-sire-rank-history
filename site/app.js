@@ -149,6 +149,7 @@ function renderHero() {
   $("#hero-sub").textContent = `${L.jp}${L.year ? `（${L.year}）` : ""} · ${L.date}`;
   const stats = [
     { label: "賞金全般", value: fmt(r.prizeOverall, 1), unit: "万円" },
+    { label: "賞金重賞", value: fmt(r.prizeGraded, 1), unit: "万円" },
     { label: "出走 回/頭", value: `${fmt(r.starts)} / ${fmt(r.runners)}`, unit: "" },
     { label: "勝利 回/頭", value: `${fmt(r.wins)} / ${fmt(r.winners)}`, unit: "" },
     { label: "重賞 回/頭", value: `${fmt(r.gradedWins)} / ${fmt(r.gradedWinners)}`, unit: "" },
@@ -172,7 +173,7 @@ function renderBar() {
       textStyle: { color: T.ink, fontSize: 12 },
       formatter: (ps) => {
         const r = top[ps[0].dataIndex];
-        return `${esc(r.sire.name)}（#${r.rank}）<br/>賞金全般：${fmt(r.prizeOverall, 1)} 万円<br/>勝利：${fmt(r.wins)} / ${fmt(r.winners)} 頭<br/>重賞：${fmt(r.gradedWins)} / ${fmt(r.gradedWinners)} 頭`;
+        return `${esc(r.sire.name)}（#${r.rank}）<br/>賞金全般：${fmt(r.prizeOverall, 1)} 万円<br/>賞金重賞：${fmt(r.prizeGraded, 1)} 万円<br/>勝利：${fmt(r.wins)} / ${fmt(r.winners)} 頭<br/>重賞：${fmt(r.gradedWins)} / ${fmt(r.gradedWinners)} 頭`;
       },
     },
     grid: { left: 156, right: 56, top: 10, bottom: 30 },
@@ -352,6 +353,7 @@ function renderTable() {
       <td class="num">${fmt(r.gradedWins)} / ${fmt(r.gradedWinners)}</td>
       <td class="num">${fmt(r.aeiOverall, 2)} / ${fmt(r.aeiGraded, 2)}</td>
       <td class="num">${fmt(r.prizeOverall, 1)}</td>
+      <td class="num">${fmt(r.prizeGraded, 1)}</td>
       <td class="num">${prizeDeltaTxt(ch)}</td>
       <td class="name">${rep}</td>`;
     frag.appendChild(tr);
