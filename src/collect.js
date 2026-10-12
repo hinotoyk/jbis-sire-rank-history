@@ -9,15 +9,24 @@ import { validate } from "./lib/validate.js";
 const DATA_DIR = path.resolve("data");
 const DELAY_MS = 1200; // 礼貌抓取间隔
 
+const JST_DATE = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "Asia/Tokyo", year: "numeric", month: "2-digit", day: "2-digit",
+});
+
 function jstParts() {
+  const now = new Date();
   const parts = new Intl.DateTimeFormat("en-CA", {
     timeZone: "Asia/Tokyo",
     year: "numeric", month: "2-digit", day: "2-digit",
     hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false,
-  }).formatToParts(new Date());
+  }).formatToParts(now);
   const get = (t) => parts.find((x) => x.type === t).value;
-  const date = `${get("year")}-${get("month")}-${get("day")}`;
-  return { date, capturedAt: `${date}T${get("hour")}:${get("minute")}:${get("second")}+09:00` };
+  const capturedAt = `${get("year")}-${get("month")}-${get("day")}T${get("hour")}:${get("minute")}:${get("second")}+09:00`;
+  // 业务日期：快照归属最近一个已完赛的比赛日。
+  // JST 18:00 前采集 → 归前一天（等价于取 now-18h 的 JST 日期），
+  // 这样 GitHub 定时任务即使延迟数小时、甚至跨过零点执行，日期标签也不会漂移到次日。
+  const date = JST_DATE.format(new Date(now.getTime() - 18 * 60 * 60 * 1000));
+  return { date, capturedAt };
 }
 
 function resolveYear(type, now) {

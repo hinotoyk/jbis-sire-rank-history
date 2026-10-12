@@ -1,11 +1,13 @@
 name: collect & deploy
 
-# 每日 22:30 JST（13:30 UTC）采集快照 → 构建 → 提交数据 → 发布 GitHub Pages
-# 注意：GitHub 定时任务可能有 15-60 分钟的调度延迟；仓库 60 天无活动会被暂停（本仓库每日提交数据不会触发）
+# 每日北京时间 10:00（JST 11:00）晨间采集 → 构建 → 提交数据 → 发布 GitHub Pages
+# 快照日期由 collect.js 的业务日期逻辑决定：JST 18:00 前采集归属前一个比赛日，
+# 因此 GitHub 定时任务即使延迟数小时、跨过零点执行，日期标签也不会漂移到次日。
+# 注意：GitHub 定时任务可能有 15 分钟～数小时的调度延迟；仓库 60 天无活动会被暂停（本仓库每日提交数据不会触发）
 
 on:
   schedule:
-    - cron: "30 13 * * *" # 22:30 JST
+    - cron: "0 2 * * *" # 10:00 北京时间 = 11:00 JST = 02:00 UTC
   workflow_dispatch: # 支持手动触发（Actions 页面 → Run workflow）
 
 permissions:
@@ -42,7 +44,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "no new snapshots"
           else
-            git commit -m "data: daily snapshot $(date -u +%F) [skip ci]"
+            git commit -m "data: daily snapshot $(TZ=Asia/Tokyo date -d yesterday +%F) [skip ci]"
             git push
           fi
 

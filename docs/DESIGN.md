@@ -312,7 +312,7 @@ export const PERIODS = {
 ```yaml
 name: collect
 on:
-  schedule: [{ cron: "30 13 * * *" }]   # 22:30 JST（JBIS 当日更新后）
+  schedule: [{ cron: "0 2 * * *" }]   # 10:00 北京（11:00 JST）晨间采集昨日完赛后榜单
   workflow_dispatch: {}                 # 支持手动补跑
 permissions: { contents: write }
 jobs:
@@ -332,7 +332,7 @@ jobs:
 
 要点：
 
-- **时区**：cron 为 UTC，选 13:30 UTC（=22:30 JST）——覆盖当日全部赛事结束后的更新；`capturedAt` 用 `+09:00` 标注。
+- **时区与业务日期**：cron 为 UTC，选 02:00 UTC（=10:00 北京=11:00 JST）晨间采集；快照 `date` 用**业务日期**（最近一个已完赛比赛日）：JST 18:00 前采集 → 归前一天，即使调度延迟数小时跨过零点，标签也不会漂移到次日；`capturedAt` 保留真实采集时刻（`+09:00`）用于审计。
 - **避免递归触发**：`collect` 只监听 `schedule`/`workflow_dispatch`，push 不会触发自身。
 - 零依赖（Node ≥ 18 内置 `fetch`），无需 `npm install`。
 
