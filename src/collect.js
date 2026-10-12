@@ -8,6 +8,25 @@ import { validate } from "./lib/validate.js";
 
 const DATA_DIR = path.resolve("data");
 const DELAY_MS = 1200; // 礼貌抓取间隔
+const RETRY_MAX = 5; // 每天最多重试 5 次（工作流每日运行一次，当日全局共享预算）
+const RETRY_BASE_MS = 30_000; // 重试间隔逐次翻倍：30s→60s→120s→240s→480s
+let retryBudget = RETRY_MAX;
+
+// 仅针对失败的请求重试：同一 URL 失败后等待并重取，间隔逐次翻倍，耗尽当日预算后按原逻辑隔离失败板块
+async function fetchWithRetry(url) {
+  for (;;) {
+    try {
+      return await fetchHtml(url);
+    } catch (e) {
+      if (retryBudget <= 0) throw e;
+      const n = RETRY_MAX - retryBudget + 1;
+      const wait = RETRY_BASE_MS * 2 ** (n - 1);
+      retryBudget--;
+      console.log(`[retry] 请求失败，${Math.round(wait / 1000)}s 后重试（当日第 ${n}/${RETRY_MAX} 次）: ${url}`);
+      await new Promise((r) => setTimeout(r, wait));
+    }
+  }
+}
 
 function jstParts() {
   const parts = new Intl.DateTimeFormat("en-CA", {
@@ -83,14 +102,14 @@ for (const t of TYPES) {
       t.board === "generation" ? { ...t, query: { ...t.query, y2: y1, y3: y1 } } : t;
     try {
       // 全量翻页抓取（items=100，docs/DESIGN.md §5.2）
-      const firstHtml = await fetchHtml(buildUrl(q, y1, 1));
+      const firstHtml = await fetchWithRetry(buildUrl(q, y1, 1));
       const first = parseRows(firstHtml);
       const total = first.total;
       let rows = first.rows;
       let pages = 1;
       while (rows.length < total && pages < 40) {
         await new Promise((r) => setTimeout(r, DELAY_MS));
-        const part = parseRows(await fetchHtml(buildUrl(q, y1, pages + 1)));
+        const part = parseRows(await fetchWithRetry(buildUrl(q, y1, pages + 1)));
         if (!part.rows.length) break; // 空页保护
         rows = rows.concat(part.rows);
         pages++;
