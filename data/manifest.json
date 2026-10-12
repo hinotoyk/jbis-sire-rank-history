@@ -40,22 +40,41 @@
   },
   "snapshots": {
     "2026-10-10": {
+      "t1-2yo-central": "ok",
+      "t2-annual-central": "ok",
+      "t3-annual-overall": "ok",
+      "t4-gen-central-2023": "ok",
+      "t5-gen-overall-2023": "ok",
+      "t1-2yo-central@2025": "ok",
+      "t2-annual-central@2025": "ok",
+      "t3-annual-overall@2025": "ok",
       "t1-2yo-central@2026": "ok",
       "t2-annual-central@2026": "ok",
       "t3-annual-overall@2026": "ok",
-      "t4-gen-central@2023": "ok",
       "t4-gen-central@2024": "ok",
+      "t4-gen-central@2023": "ok",
+      "t4-gen-central@2022": "ok",
+      "t5-gen-overall@2024": "ok",
       "t5-gen-overall@2023": "ok",
-      "t5-gen-overall@2024": "ok"
+      "t5-gen-overall@2022": "ok"
     },
     "2026-10-11": {
+      "t1-2yo-central@2026": "error",
+      "t2-annual-central@2026": "ok",
+      "t3-annual-overall@2026": "ok",
+      "t4-gen-central@2024": "ok",
+      "t4-gen-central@2023": "ok",
+      "t5-gen-overall@2024": "ok",
+      "t5-gen-overall@2023": "ok"
+    },
+    "2026-10-12": {
       "t1-2yo-central@2026": "ok",
       "t2-annual-central@2026": "ok",
       "t3-annual-overall@2026": "ok",
-      "t4-gen-central@2023": "ok",
       "t4-gen-central@2024": "ok",
-      "t5-gen-overall@2023": "ok",
-      "t5-gen-overall@2024": "ok"
+      "t4-gen-central@2023": "ok",
+      "t5-gen-overall@2024": "ok",
+      "t5-gen-overall@2023": "ok"
     }
   }
 }
