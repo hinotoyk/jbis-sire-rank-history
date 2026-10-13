@@ -1,12 +1,13 @@
 name: collect & deploy
 
-# 每日北京时间 10:00（JST 11:00）晨间采集 → 快照标注采集当天日期 → 构建 → 提交数据 → 发布 GitHub Pages
-# 10:00 执行时距 JST 零点已 11 小时，GitHub 常规调度延迟（几分钟～数小时）不会使日期跨到次日
+# 每日北京时间 06:17（JST 07:17）晨间采集 → 快照标注采集当天日期 → 构建 → 提交数据 → 发布 GitHub Pages
+# 06:17 执行时距 JST 零点已 7 小时，GitHub 常规调度延迟（几分钟～数小时）不会使日期跨到次日
+# 非整点触发：避开 GitHub 整点高负载队列，降低 schedule 被延迟/跳过的概率
 # 注意：GitHub 定时任务可能有 15 分钟～数小时的调度延迟；仓库 60 天无活动会被暂停（本仓库每日提交数据不会触发）
 
 on:
   schedule:
-    - cron: "0 2 * * *" # 10:00 北京时间 = 11:00 JST = 02:00 UTC
+    - cron: "17 22 * * *" # 06:17 北京时间 = 07:17 JST = 22:17 UTC
   workflow_dispatch: # 支持手动触发（Actions 页面 → Run workflow）
 
 permissions:
