@@ -79,6 +79,13 @@
   </section>
 </main>
 
+<!-- 「友情档案」三站互跳（yunji / kzn / jbis；方案说明 = docs/友情跳转方案.md）：
+     页脚收尾区挂载点（v2 定稿：main 之后、colophon 之前 = 读完排名自然到达的出口，
+     不占首屏、不混入站头功能区）。挂载点由 friend-links.js 渲染（data-site 排除自身），
+     样式由其注入的 CSS 从站点 CSS 变量取色，mint/mist/ink/sand 换肤自动跟随；
+     脚本缺失/渲染失败时挂载点保持空白，无占位观感。 -->
+<div data-friend-links data-site="jbis" data-skin="jbis"></div>
+
 <footer>
   <span>数据来源 JBIS（jbis.or.jp）</span>
   <span>每日快照 · 全量收录</span>
@@ -86,6 +93,7 @@
 </footer>
 
 <script src="vendor/echarts.min.js"></script>
+<script src="friend-links.js" defer></script>
 <script src="app.js"></script>
 </body>
 </html>
