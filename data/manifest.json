@@ -1,6 +1,6 @@
 {
   "schema": "jbis.sire.rank.manifest/v1",
-  "updatedAt": "2026-10-22T09:43:06+09:00",
+  "updatedAt": "2026-10-23T09:43:08+09:00",
   "types": {
     "t1-2yo-central": {
       "name": "中央 サラ系 2歳",
@@ -161,6 +161,15 @@
       "t1-2yo-central@2026": "ok",
       "t2-annual-central@2026": "ok",
       "t3-annual-overall@2026": "ok",
+      "t4-gen-central@2024": "ok",
+      "t4-gen-central@2023": "ok",
+      "t5-gen-overall@2024": "ok",
+      "t5-gen-overall@2023": "ok"
+    },
+    "2026-10-23": {
+      "t1-2yo-central@2026": "ok",
+      "t2-annual-central@2026": "ok",
+      "t3-annual-overall@2026": "error",
       "t4-gen-central@2024": "ok",
       "t4-gen-central@2023": "ok",
       "t5-gen-overall@2024": "ok",
