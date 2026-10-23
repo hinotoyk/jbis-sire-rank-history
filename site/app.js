@@ -62,10 +62,20 @@ function chart(id) {
   if (!charts[id]) charts[id] = echarts.init($("#" + id));
   return charts[id];
 }
+// 窄屏（≤720px）：柱图收窄名头与右留白，多留画布给柱子
+const isNarrow = () => window.innerWidth <= 720;
+let lastNarrow = isNarrow();
 function resizeAll() {
   for (const k in charts) charts[k].resize();
 }
-window.addEventListener("resize", resizeAll);
+window.addEventListener("resize", () => {
+  const n = isNarrow();
+  if (n !== lastNarrow) {
+    lastNarrow = n;
+    if (state.latest) renderBar(); // 跨断点重设柱图 grid
+  }
+  resizeAll();
+});
 
 async function main() {
   const index = await json("derived/index.json");
@@ -163,6 +173,7 @@ function renderHero() {
 function renderBar() {
   const L = state.latest;
   const top = L.rows.slice(0, 20);
+  const narrow = isNarrow();
   chart("chart-bar").setOption({
     animation: !REDUCE_MOTION,
     tooltip: {
@@ -176,12 +187,13 @@ function renderBar() {
         return `${esc(r.sire.name)}（#${r.rank}）<br/>賞金全般：${fmt(r.prizeOverall, 1)} 万円<br/>賞金重賞：${fmt(r.prizeGraded, 1)} 万円<br/>勝利：${fmt(r.wins)} / ${fmt(r.winners)} 頭<br/>重賞：${fmt(r.gradedWins)} / ${fmt(r.gradedWinners)} 頭`;
       },
     },
-    grid: { left: 156, right: 56, top: 10, bottom: 30 },
+    grid: { left: narrow ? 112 : 156, right: narrow ? 52 : 56, top: 10, bottom: 30 },
     xAxis: {
       type: "value",
       name: "万円",
+      splitNumber: narrow ? 4 : 5, // 窄屏少画几档刻度，避免挤成一团
       nameTextStyle: { color: T.muted, fontSize: 10 },
-      axisLabel: { color: T.muted, fontSize: 10 },
+      axisLabel: { color: T.muted, fontSize: narrow ? 9 : 10 },
       axisLine: { show: false },
       splitLine: { lineStyle: { color: T.split } },
     },
@@ -189,7 +201,7 @@ function renderBar() {
       type: "category",
       data: top.map((r) => r.sire.name),
       inverse: true,
-      axisLabel: { fontSize: 11.5, color: T.ink, fontFamily: FONT_BODY, width: 148, overflow: "truncate" },
+      axisLabel: { fontSize: 11.5, color: T.ink, fontFamily: FONT_BODY, width: narrow ? 100 : 148, overflow: "truncate" },
       axisLine: { lineStyle: { color: T.axis } },
       axisTick: { show: false },
     },
@@ -214,7 +226,7 @@ function renderBar() {
           position: "right",
           fontSize: 10,
           color: T.muted,
-          formatter: (p) => fmt(top[p.dataIndex].prizeOverall, 1), // 柱端标注 = 賞金全般总额
+          formatter: (p) => fmt(top[p.dataIndex].prizeOverall, narrow ? 0 : 1), // 柱端标注 = 賞金全般总额（窄屏省略小数）
         },
       },
     ],
@@ -362,14 +374,14 @@ function renderTable() {
     tr.innerHTML = `
       <td class="rank">${r.rank}</td>
       <td class="name">${sireLink}</td>
-      <td class="num ${deltaCls(ch)}">${deltaTxt(ch)}</td>
+      <td class="num c-rankdelta ${deltaCls(ch)}">${deltaTxt(ch)}</td>
       <td class="num">${fmt(r.starts)} / ${fmt(r.runners)}</td>
       <td class="num">${fmt(r.wins)} / ${fmt(r.winners)}</td>
       <td class="num">${fmt(r.gradedWins)} / ${fmt(r.gradedWinners)}</td>
       <td class="num">${fmt(r.aeiOverall, 2)} / ${fmt(r.aeiGraded, 2)}</td>
       <td class="num">${fmt(r.prizeOverall, 1)}</td>
       <td class="num">${fmt(r.prizeGraded, 1)}</td>
-      <td class="num">${prizeDeltaTxt(ch)}</td>
+      <td class="num c-prizedelta">${prizeDeltaTxt(ch)}</td>
       <td class="name">${rep}</td>`;
     frag.appendChild(tr);
   }
