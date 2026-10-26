@@ -313,7 +313,7 @@ export const PERIODS = {
 ```yaml
 name: collect
 on:
-  schedule: [{ cron: "17 22 * * *" }]   # 06:17 北京（07:17 JST）晨间采集，快照标注当天日期（非整点避开高负载队列）
+  schedule: [{ cron: "30 3 * * *" }]   # 11:30 北京（12:30 JST）采集，快照标注当天日期（非整点避开高负载队列）
   workflow_dispatch: {}                 # 支持手动补跑
 permissions: { contents: write }
 jobs:
@@ -333,7 +333,7 @@ jobs:
 
 要点：
 
-- **时区与日期标注**：cron 为 UTC，选 22:17 UTC（=06:17 北京=07:17 JST）晨间采集；快照 `date` 标注**采集当天**（JST）日期，`capturedAt` 为真实采集时刻（`+09:00`）用于审计；晨间执行距 JST 零点 7 小时，常规调度延迟不会使标签跨日漂移。
+- **时区与日期标注**：cron 为 UTC，选 03:30 UTC（=11:30 北京=12:30 JST）采集；快照 `date` 标注**采集当天**（JST）日期，`capturedAt` 为真实采集时刻（`+09:00`）用于审计；执行距 JST 零点 12.5 小时，常规调度延迟不会使标签跨日漂移。**采集时点必须晚于 JBIS 当日集计更新**（上午刷新，周末赛果并入在周一）：原 07:17 JST 的时点长期早于刷新，快照会系统性落后一档（2026-10-26 实测：08:26 JST 仍是周五数字，11:20 已含周末赛果）。
 - **避免递归触发**：`collect` 只监听 `schedule`/`workflow_dispatch`，push 不会触发自身。
 - 零依赖（Node ≥ 18 内置 `fetch`），无需 `npm install`。
 

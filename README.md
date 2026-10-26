@@ -22,6 +22,6 @@ npm run serve    # 仅启动本地服务（默认端口 9090）
 
 推送到 GitHub 后无需本地参与：
 
-- **自动更新数据**：`.github/workflows/collect.yml` 每日 06:17（北京时间，= 07:17 JST）定时采集 → 构建 → 将新快照提交回仓库 → 发布 Pages；也可在 Actions 页面手动触发（Run workflow）
+- **自动更新数据**：`.github/workflows/collect.yml` 每日 11:30（北京时间，= 12:30 JST，晚于 JBIS 当日集计更新）定时采集 → 构建 → 将新快照提交回仓库 → 发布 Pages；也可在 Actions 页面手动触发（Run workflow）
 - **在线访问**：仓库 Settings → Pages → Source 选 **GitHub Actions**（一次性设置），之后访问 `https://hinotoyk.github.io/jbis-sire-rank-history/`
 - 补采历史年度（仅年度榜）：`node src/collect.js 2025` 本地执行后推送

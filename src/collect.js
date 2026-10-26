@@ -36,8 +36,8 @@ function jstParts() {
   }).formatToParts(new Date());
   const get = (t) => parts.find((x) => x.type === t).value;
   const date = `${get("year")}-${get("month")}-${get("day")}`;
-  // 快照标注采集当天（JST）日期。每日北京 10:00（JST 11:00）晨间执行，
-  // 调度延迟需超过 13 小时才会跨过 JST 零点导致标签漂移，常规延迟不会发生。
+  // 快照标注采集当天（JST）日期。每日北京 11:30（JST 12:30）执行，
+  // 调度延迟需超过 11.5 小时才会跨过 JST 零点导致标签漂移，常规延迟不会发生。
   return { date, capturedAt: `${date}T${get("hour")}:${get("minute")}:${get("second")}+09:00` };
 }
 
