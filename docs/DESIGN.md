@@ -483,6 +483,34 @@ npm start         # collect + build + serve 一条龙
 
 ---
 
+## 12. 嵌入图表组件（embed/sire-rank-chart.js，2026-10-27）
+
+对兄弟站（当前 = 云迹 yunji-web）发布的**纯渲染图表组件**，与 friend-links「一个组件文件 + 各站一行挂载」同模式。
+职责切分：**数据获取/缓存归宿主站**（云迹走 YJ.cache，断网回退、TTL 都复用其全站控制器），**本组件只画图**——
+不 fetch、不写任何存储键，因此组件可被任意宿主安全引入。
+
+- **发布**：`site/embed/sire-rank-chart.js` 随 `npm run build` 原样拷入 `_site/embed/`（零依赖、~10KB，无 ECharts）。
+- **API**（`window.JBIS_RANK_EMBED`）：
+  - `render(mountEl, data, opts)`：把图渲染进 mount（自适应宽度，ResizeObserver 重渲染）；
+  - `buildSVG(data, opts, W)`：纯函数（Node 可测）→ `{svg, W, H, geo}`。
+- **数据契约** = `derived/sire-history/<board>/<jbis_id>.json`：
+  `{ sire: {id, name}, history: [{date, rank, prizeOverall}] }`（prizeOverall 单位万円；rank/prizeOverall 可为 null）。
+- **图形**：赏金 = 平滑/阶梯线 + 淡渐变面积；**名次不成图**（v1.3.0 用户定稿：副图太丑）——
+  跳增标注内嵌「+金额（N位）」+ 悬停 tooltip（日期/赏金/较前快照/名次）承担名次信息。
+- **风格（opts.style，v1.3.1）**：`step-area` 阶梯面积（默认）/ `step` 纯阶梯 / `bar` 累计柱 / `smooth-area` 平滑面积
+  （单调三次样条，视觉取舍：快照间插值）/ `combo` **平滑累计+增量柱（共用 y 轴、同面板**，云迹定稿）/
+  `triple` 双面板（增量柱独立刻度，增量极小相对累计时用）/ `delta` 纯增量主图 / `bump` 名次为主图（唯一保留名次轴的风格）。
+  `opts.annotate` = 跳增日标注「+金额（名次）」（平滑/阶梯类，快照 >45 日自动关闭）。
+- **y 轴刻度（v1.2.0）**：`opts.yTicks`（默认 9）目标格数，步长按 1/2/2.5/5×10^k 取整（同分取更细）——
+  1.87億 板 → 每 2,000万 一格；13.8億 板 → 每 2億 一格；≥1億 刻度最多 2 位小数（1.25億 不再错位）。
+- **opts**：`colors`（缺省依次取宿主 CSS 变量 `--primary`/`--chart-2`，回退 `--accent` 与内置中性灰 → jbis 主题与云迹 Tailwind 主题都无需改样式）、
+  `labels`（宿主语言文案）、`heights`、`font`。
+- **宿主接入示例** = `site/embed-demo.html`（本站演示页，`npm run serve` 后开 `/embed-demo.html`）；
+  云迹侧挂载 = `yunji-web/front/pages/stats.html` §赏金走势（缓存条目 `sireRank`，URL 单一出处 `data-config.js YJ_DATA.remote.jbisRank`）。
+- 本地联调方法：`tests/sire-rank-embed/`（yunji 仓）+ 带 CORS 头的静态服务模拟 GitHub Pages（GH Pages 全站 `Access-Control-Allow-Origin: *`）。
+
+---
+
 ## 附录 A：实测快照样本（真实数据，2026-10-10）
 
 年度別・中央（`ranking=1&y1=2026&kind=1&division=2&racetype1=1&racetype2=1`）前 3 行：

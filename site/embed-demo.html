@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>嵌入组件演示 · sire-rank-chart</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  body { max-width: 860px; margin: 0 auto; padding: 32px 20px 60px; }
+  h1 { font-size: 17px; margin: 0 0 6px; }
+  p.note { font-size: 12.5px; color: var(--muted); margin: 0 0 18px; line-height: 1.6; }
+  .toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 14px; }
+  select { font: inherit; padding: 4px 8px; border: 1px solid var(--line); border-radius: 6px; background: #fff; color: var(--ink); }
+  .card { border: 1px solid var(--line); border-radius: 10px; padding: 16px; background: var(--card); }
+  code { font-size: 12px; background: var(--line-soft); padding: 1px 5px; border-radius: 4px; }
+</style>
+</head>
+<body>
+  <h1>嵌入组件演示 · JBIS_RANK_EMBED</h1>
+  <p class="note">
+    宿主站引用方式：<code>&lt;script src="embed/sire-rank-chart.js"&gt;</code> + <code>JBIS_RANK_EMBED.render(el, data, opts)</code>。
+    数据由宿主获取后喂入（本组件不 fetch、不写存储）；颜色缺省继承宿主 CSS 变量（本页回退 <code>--accent</code>）。
+    数据：<code>derived/sire-history/&lt;board&gt;/0001237042.json</code>（コントレイル）。
+  </p>
+  <div class="toolbar">
+    <select id="board"></select>
+    <span id="styles" style="display:inline-flex;gap:4px;flex-wrap:wrap"></span>
+    <label style="font-size:12.5px;color:var(--muted);display:inline-flex;align-items:center;gap:3px">
+      <input type="checkbox" id="anno"> 跳增标注
+    </label>
+    <span id="meta" style="font-size:12.5px;color:var(--muted)"></span>
+  </div>
+  <div class="card"><div id="chart"></div></div>
+
+<script src="embed/sire-rank-chart.js"></script>
+<script>
+(function () {
+  var SIRE = "0001237042"; /* コントレイル */
+  var el = document.getElementById("chart");
+  var sel = document.getElementById("board");
+  /* 风格切换（2026-10-27 用户选型用）：step-area 阶梯面积 / step 纯阶梯 / bar 累计柱 /
+   * smooth-area 平滑面积 / combo 增量柱+累计线；?style= 可直达（供无头截图） */
+  var STYLE_LIST = [
+    ["step-area", "阶梯面积（现状）"],
+    ["step", "纯阶梯"],
+    ["bar", "累计柱"],
+    ["smooth-area", "平滑面积"],
+    ["combo", "赏金+增量（共用轴）"],
+    ["triple", "赏金+增量（分轴）"],
+    ["delta", "纯增量"],
+    ["bump", "名次主角"]
+  ];
+  var anno = document.getElementById("anno");
+  anno.checked = new URLSearchParams(location.search).get("anno") === "1";
+  var style = (new URLSearchParams(location.search).get("style") || "").trim();
+  if (JBIS_RANK_EMBED.styles.indexOf(style) < 0) style = "step-area";
+  document.getElementById("styles").innerHTML = STYLE_LIST.map(function (st) {
+    return '<button type="button" data-st="' + st[0] + '" style="font:inherit;font-size:12.5px;padding:4px 10px;' +
+      'border:1px solid var(--line);border-radius:999px;background:#fff;cursor:pointer;color:var(--muted)">' + st[1] + "</button>";
+  }).join("");
+  function paintStyleBtns() {
+    document.getElementById("styles").querySelectorAll("button[data-st]").forEach(function (b) {
+      var on = b.getAttribute("data-st") === style;
+      b.style.background = on ? "var(--accent-soft)" : "#fff";
+      b.style.borderColor = on ? "var(--accent)" : "var(--line)";
+      b.style.color = on ? "var(--accent)" : "var(--muted)";
+      b.style.fontWeight = on ? "600" : "400";
+    });
+  }
+  document.getElementById("styles").addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest("button[data-st]");
+    if (!b || b.getAttribute("data-st") === style) return;
+    style = b.getAttribute("data-st");
+    paintStyleBtns();
+    load();   /* 已缓存数据直接重画（组件纯渲染，风格切换不重新请求） */
+  });
+  paintStyleBtns();
+
+  /* 派生目录 = boardId（类型@集計年度/出生年）：年度板动态拼当前年 */
+  var Y = new Date().getFullYear();
+  var BOARDS = [
+    ["t4-gen-central@2023", "世代別 2023年生・中央", true],
+    ["t5-gen-overall@2023", "世代別 2023年生・総合"],
+    ["t2-annual-central@" + Y, "年度別・中央"],
+    ["t3-annual-overall@" + Y, "年度別・総合"],
+    ["t4-gen-central@2024", "世代別 2024年生・中央"],
+    ["t5-gen-overall@2024", "世代別 2024年生・総合"]
+  ];
+  sel.innerHTML = BOARDS.map(function (b) {
+    return '<option value="' + b[0] + '"' + (b[2] ? " selected" : "") + ">" + b[1] + "</option>";
+  }).join("");
+
+  function boardUrl(b) {
+    return "derived/sire-history/" + b + "/" + SIRE + ".json";
+  }
+  function load() {
+    var b = sel.value;
+    el.innerHTML = '<div style="padding:26px 10px;text-align:center;font-size:13px;color:var(--muted)">読み込み中…</div>';
+    fetch(boardUrl(b)).then(function (r) {
+      if (!r.ok) throw new Error(r.status);
+      return r.json();
+    }).then(function (data) {
+      var his = data.history || [], last = his[his.length - 1] || {};
+      document.getElementById("meta").textContent =
+        data.sire.name + " · 最新 " + (last.date || "—") + " · 賞金 " +
+        (last.prizeOverall == null ? "—" : last.prizeOverall.toLocaleString() + "万円") +
+        " · " + (last.rank == null ? "—" : "第" + last.rank + "位");
+      JBIS_RANK_EMBED.render(el, data, {
+        style: style, annotate: document.getElementById("anno").checked,
+        labels: { prize: "賞金", rank: "順位", empty: "暂无快照数据" }
+      });
+    }).catch(function () {
+      el.innerHTML = '<div style="padding:26px 10px;text-align:center;font-size:13px;color:var(--muted)">数据加载失败（' + b + '）</div>';
+    });
+  }
+  sel.addEventListener("change", load);
+  document.getElementById("anno").addEventListener("change", load);
+  load();
+})();
+</script>
+</body>
+</html>
