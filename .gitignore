@@ -12,3 +12,6 @@ _site/
 
 # 日志
 *.log
+
+# 本地智能体工作目录
+.workbuddy/

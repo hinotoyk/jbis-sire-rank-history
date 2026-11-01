@@ -19,7 +19,9 @@
     </div>
     <div class="meta" id="meta">加载中…</div>
   </div>
-  <nav id="type-tabs" class="tabs" aria-label="榜单类型"></nav>
+  <!-- 三层导航：L1 榜单类别（2歳/年度別/世代別）→ L2 区分（中央/総合，仅年度別・世代別有）→ L3 年度/出生年 -->
+  <nav id="type-tabs" class="tabs" aria-label="榜单类别"></nav>
+  <nav id="div-switch" class="year-switch" aria-label="区分"></nav>
   <nav id="year-switch" class="year-switch" aria-label="年度"></nav>
 </header>
 
@@ -36,20 +38,25 @@
   </section>
 
   <div class="grid">
-    <section class="panel">
-      <h2 class="panel-title">賞金全般<span>Top-20 · 万円 · 突出色＝重賞</span></h2>
+    <!-- MB 专用图表切换：PC 双图并排（tabs 隐藏），MB 单面板 tab（applyChartTab 控制显隐） -->
+    <nav class="chart-tabs" id="chart-tabs" hidden aria-label="图表切换">
+      <button data-c="bar" class="on">賞金 Top</button>
+      <button data-c="line">排名曲线</button>
+    </nav>
+    <section class="panel" id="panel-bar">
+      <h2 class="panel-title">賞金全般<span id="bar-sub">Top-20 · 万円 · 突出色＝重賞</span></h2>
       <div id="chart-bar" class="chart"></div>
     </section>
-    <section class="panel">
-      <h2 class="panel-title">排名曲线<span>Top-3 + コントレイル · 点行增减 · x 轴随期间</span></h2>
+    <section class="panel" id="panel-line">
+      <h2 class="panel-title">排名曲线</h2>
       <div id="chart-line" class="chart"></div>
-      <p class="hint">每日快照积累后自动成曲线；x 轴粒度随「期間」的 日/周/月/年 切换（每桶取最晚快照）；y 轴按已选名次自动缩放；点击明细表行增减（上限 12）。</p>
+      <p class="hint" id="curve-hint">点击明细行可加入/移出曲线（上限 12）；y 轴随已选名次自动缩放。</p>
     </section>
   </div>
 
   <section class="panel wide">
     <div class="row-head">
-      <h2 class="panel-title">明細<span id="detail-range">1–…</span></h2>
+      <h2 class="panel-title">明細<span id="detail-range">…</span></h2>
       <div class="period-switch" id="period-switch">
         <span class="ps-label">期間</span>
         <button data-p="daily" class="on">日</button>
@@ -59,24 +66,27 @@
       </div>
     </div>
     <div class="table-wrap">
+      <!-- 设备判定单一入口 JB.device（device.js）：PC 走表格、MB 走卡片列表，两容器互斥显示（renderTable 切换 hidden） -->
       <table id="rank-table">
         <thead>
           <tr>
             <th class="c-rank">順位</th>
             <th class="c-name">種牡馬名</th>
-            <th class="c-delta c-rankdelta">Δ順位</th>
+            <th class="c-rankdelta" title="与上一快照的名次变化">Δ順位</th>
             <th>出走 回/頭</th>
             <th>勝利 回/頭</th>
             <th>重賞 回/頭</th>
-            <th>AEI 全/重</th>
+            <th id="th-aei" title="AEI（アーニングインデックス）：産駒の獲得収入指数">AEI 全/重</th>
             <th>賞金全般 万円</th>
+            <th class="c-gap" title="距上一名的賞金全般差额">差</th>
             <th>賞金重賞 万円</th>
-            <th class="c-prizedelta">Δ賞金</th>
+            <th class="c-prizedelta" title="与上一快照的賞金变化（万円）">Δ賞金</th>
             <th class="c-name">代表産駒</th>
           </tr>
         </thead>
         <tbody></tbody>
       </table>
+      <div class="rank-cards" id="rank-cards" hidden></div>
       <div class="table-more" id="table-more"></div>
     </div>
   </section>
@@ -91,11 +101,12 @@
 
 <footer>
   <span>数据来源 JBIS（jbis.or.jp）</span>
-  <span>每日快照 · 全量收录</span>
-  <span>图表 Apache ECharts · 本地自托管</span>
+  <span>每日快照 · 全量收录 · 每日 12:30（JST）后自动更新</span>
+  <span>图表由 Apache ECharts 驱动</span>
 </footer>
 
 <script src="vendor/echarts.min.js"></script>
+<script src="device.js"></script>
 <script src="friend-links.js" defer></script>
 <script src="app.js"></script>
 </body>
