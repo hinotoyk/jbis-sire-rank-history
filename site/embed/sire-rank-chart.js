@@ -20,7 +20,10 @@
  *          | "triple" | "delta" | "bump"
  *            阶梯面积（默认）/ 纯阶梯 / 累计柱 / 平滑面积 / 平滑累计+增量柱（共用y轴）/
  *            双面板（累计+增量柱独立刻度）/ 纯增量视图 / 名次主角
- *   annotate true = 主图跳增日标注「+金额（名次）」（平滑/阶梯类风格生效；快照 >45 日自动关闭）
+ *   annotate true | "rank" = 主图标注（平滑/阶梯类风格生效；快照 >45 日自动关闭）：
+ *            true   → 跳增日标「+金额（N位）」（宽幅宿主）
+ *            "rank" → **只报名次变化**「N位」（v1.4.0；窄屏宿主用：390px 下「+金额（N位）」
+ *                     宽约 90px，25 点幅面必然互相压叠 → 只留名次，且自右向左避让防重叠）
  *   colors   {prize, rank, grid, tick, halo}  线/网格/刻度色；缺省依次取宿主
  *                                             CSS 变量 --primary/--chart-2（回退 --accent）与内置中性灰
  *   labels   {prize, rank, delta, empty}      tooltip/面板文案（宿主按自己语言传）
@@ -39,7 +42,7 @@
 (function () {
   "use strict";
 
-  var VERSION = "1.3.1";
+  var VERSION = "1.4.1";
   var STYLES = ["step-area", "step", "bar", "smooth-area", "combo", "triple", "delta", "bump"];
   var seq = 0; /* 渐变 id 自增：同页多实例不串 */
 
@@ -303,17 +306,54 @@
         s.push('<circle cx="' + x(n - 1).toFixed(1) + '" cy="' + yMain(lastPrize).toFixed(1) + '" r="4" fill="' +
           C.prize + '" stroke="' + C.halo + '" stroke-width="1.6"/>');
       }
-      /* 跳增标注：上涨日标「+金额（名次）」，千万级变化与名次一眼可见（密集快照自动关闭）；
-       * 靠右缘的点改右对齐，避免文字出界被裁 */
-      if (o.annotate && n <= 45) {
-        for (var ai = 1; ai < n; ai++) {
-          if (deltas[ai] == null || deltas[ai] <= 0) continue;
-          var ax = x(ai), ay = yMain(pts[ai].prize);
-          var above = ay > mainTop + 16;
-          var edge = ax > W - padR - 58;
+      /* 跳增标注（v1.4.0 两档，见文件头 opts.annotate）：
+       *   full = 上涨日标「+金额（N位）」，千万级变化与名次一眼可见（密集快照自动关闭）；
+       *   rank = **只标名次变化日**「N位」（窄屏：金额文案宽 90px 会与相邻点互相压叠，
+       *          而名次变化才是走势的「结构变化」，金额已由增量柱/末点表达）；
+       * 避让（v1.4.1）：按候选宽度设最小间距，冲突时按**优先级**取舍 ——
+       *   full 档：日增大的先留（否则窄幅下被丢的往往正是最想看的那条大跳增）；
+       *   rank 档：自右向左先留（右侧=最新）。
+       * 落点：太靠顶就标在点下方（上方是轴题与出界区），靠右缘改右对齐；
+       *   paint-order 白描边让文字压在曲线/面积上也读得清。 */
+      if (o.annotate) {
+        var marks = [];
+        if (o.annotate === "rank") {
+          for (var ri = 1; ri < n; ri++) {
+            var r0 = pts[ri - 1].rank, r1 = pts[ri].rank;
+            if (r0 == null || r1 == null || r0 === r1) continue;   /* 缺测日/名次未变不标 */
+            marks.push({ i: ri, w: 0, text: r1 + "位", color: C.rank, anchorPad: 26 });
+          }
+        } else if (n <= 45) {
+          for (var ai = 1; ai < n; ai++) {
+            if (deltas[ai] == null || deltas[ai] <= 0) continue;
+            marks.push({ i: ai, w: deltas[ai], color: C.tick, anchorPad: 58,
+              text: "+" + fmtWan(deltas[ai]) + (pts[ai].rank != null ? "（" + pts[ai].rank + "位）" : "") });
+          }
+        }
+        var MIN_GAP = o.annotate === "rank" ? 34 : 92;   /* 实测文案宽 + 呼吸位（rank ≈ 18px / full ≈ 88px） */
+        var kept = [];
+        if (o.annotate === "rank") {
+          var lastMX = 1e9;
+          for (var ki = marks.length - 1; ki >= 0; ki--) {
+            var mx = x(marks[ki].i);
+            if (lastMX - mx < MIN_GAP) continue;
+            lastMX = mx;
+            kept.push(marks[ki]);
+          }
+        } else {
+          marks.slice().sort(function (a, b) { return b.w - a.w; }).forEach(function (m) {
+            for (var q = 0; q < kept.length; q++) if (Math.abs(x(kept[q].i) - x(m.i)) < MIN_GAP) return;
+            kept.push(m);
+          });
+        }
+        kept.sort(function (a, b) { return a.i - b.i; });
+        for (var kj = 0; kj < kept.length; kj++) {
+          var mk = kept[kj], ax = x(mk.i), ay = yMain(pts[mk.i].prize);
+          var above = ay > mainTop + 26;
           s.push('<text x="' + ax.toFixed(1) + '" y="' + (above ? ay - 7 : ay + 15).toFixed(1) +
-            '" text-anchor="' + (edge ? "end" : "middle") + '" font-size="9.5" font-weight="600" fill="' + C.tick + '">+' +
-            fmtWan(deltas[ai]) + (pts[ai].rank != null ? "（" + pts[ai].rank + "位）" : "") + "</text>");
+            '" text-anchor="' + (ax > W - padR - mk.anchorPad ? "end" : "middle") + '" font-size="9.5" font-weight="600" fill="' +
+            mk.color + '" stroke="' + C.halo + '" stroke-width="2.6" paint-order="stroke" stroke-linejoin="round">' +
+            esc(mk.text) + "</text>");
         }
       }
     }
@@ -332,10 +372,15 @@
 
     /* ---- 名次不再成图（v1.3.0 用户定稿）：信息由 跳增标注（+金额（N位））与 tooltip 承担 ---- */
 
-    /* ---- x 刻度（首/尾必含，其余抽稀防重叠；尾点右对齐防出界） ---- */
+    /* ---- x 刻度（首/尾必含，其余抽稀防重叠；尾点右对齐防出界） ----
+     * v1.4.0：尾点必标，若它和上一个候选贴太近（<42px，约「10/28」宽度 + 呼吸位），
+     * 丢掉前一个 —— 窄屏（330px / 26 点）下原来会出现「10/2710/28」两串数字压在一起。 */
     var lblStep = Math.max(1, Math.ceil(n / Math.max(1, Math.floor(plotW / 52))));
-    for (var xi = 0; xi < n; xi++) {
-      if (xi % lblStep !== 0 && xi !== n - 1) continue;
+    var xiIdx = [];
+    for (var xi = 0; xi < n; xi++) if (xi % lblStep === 0 || xi === n - 1) xiIdx.push(xi);
+    while (xiIdx.length > 1 && x(xiIdx[xiIdx.length - 1]) - x(xiIdx[xiIdx.length - 2]) < 42) xiIdx.splice(xiIdx.length - 2, 1);
+    for (var xk = 0; xk < xiIdx.length; xk++) {
+      var xi = xiIdx[xk];
       var isLastX = xi === n - 1;
       s.push('<text x="' + (isLastX ? W - padR + 12 : x(xi)).toFixed(1) + '" y="' + (H - 5) + '" text-anchor="' +
         (isLastX ? "end" : "middle") + '" font-size="10" fill="' + C.tick + '">' + esc(fmtMD(pts[xi].date)) + "</text>");
@@ -366,7 +411,7 @@
     var c = opts.colors || {};
     return {
       style: opts.style,
-      annotate: !!opts.annotate,
+      annotate: opts.annotate === "rank" ? "rank" : !!opts.annotate,
       colors: {
         prize: c.prize || cssVar(mount, "--primary", cssVar(mount, "--accent", "#0aa7a0")),
         rank: c.rank || cssVar(mount, "--chart-2", "#0f8fd6"),
