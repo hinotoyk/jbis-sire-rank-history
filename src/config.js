@@ -1,4 +1,15 @@
 // 5 种排名类型的公共查询参数与运行配置（docs/DESIGN.md §3、§5.1）
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+
+// 本地预览的端口/根目录单源 = 项目根 serve.config.json（docs/DESIGN.md §11）。
+// 四兄弟站约定：yunji-web 9090 / kzn-web 9091 / 本站 9092 / racing-calendar 9093。
+// 勿在此写死端口——占号冲突/自动顺延会让宿主站（云迹 stats.html）的跨站引用静默失配。
+export const SERVE = JSON.parse(
+  readFileSync(fileURLToPath(new URL("../serve.config.json", import.meta.url)), "utf8"),
+);
+export const ROOT_DIR = fileURLToPath(new URL("..", import.meta.url)); // 仓库根（serve.config.json 所在）
+
 export const BASE = {
   kind: 1,          // サラ系
   racetype1: 1,     // 馬場：総合
@@ -68,7 +79,7 @@ export const PERIODS = {
 
 // 运行参数
 export const SITE = {
-  port: 9090,       // 本地预览端口（docs/DESIGN.md §11）
+  port: SERVE.port, // 本地预览端口（单源 = serve.config.json；docs/DESIGN.md §11）
   curveMax: 12,     // 排名曲线最多同时展示的种马数
   fixedCurveSire: { id: "0001237042", name: "コントレイル" }, // 曲线固定展示（用户指定）
   genWindow: 2,     // 世代別采集最近 N 个出生年（如 2026 年 → 2024/2023，即 2/3 歳世代；随年自动滑动）

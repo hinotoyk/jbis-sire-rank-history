@@ -1,0 +1,7 @@
+{
+  "name": "jbis-sire-rank-history",
+  "port": 9092,
+  "host": "127.0.0.1",
+  "root": "_site",
+  "open": "index.html"
+}

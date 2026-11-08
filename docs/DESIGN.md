@@ -466,18 +466,20 @@ delta(sire, d, period) = rank(sire, d) - rank(sire, ref(d, period))
 
 ---
 
-## 11. 本地预览（端口 9090）
+## 11. 本地预览（端口 9092）
 
 已实现（`src/`、`site/`）：
 
 ```bash
 npm run collect   # 抓取 5 类榜单当日快照 → data/
 npm run build     # 生成 _site/（复制 site/ + data/，并生成 derived/ 派生数据）
-npm run serve     # 本地静态服务，默认端口 9090，并自动打开浏览器
+npm run serve     # 本地静态服务，端口固定 9092，并自动打开浏览器（--no-open 不弹）
 npm start         # collect + build + serve 一条龙
 ```
 
-- 服务根目录为 `_site/`，地址 `http://127.0.0.1:9090/`；端口在 `src/config.js` 的 `SITE.port` 配置（默认 9090，占用时自动顺延）。
+- 服务根目录为 `_site/`，地址 `http://127.0.0.1:9092/`；**端口 / 根目录 / 绑址单源 = 项目根 `serve.config.json`**（2026-11 定稿），`src/config.js` 读取后导出 `SITE.port`，`src/server.js` 不再硬编码。
+- 四兄弟站端口约定：yunji-web 9090 / kzn-web 9091 / **本站 9092** / racing-calendar 9093。端口被占用时**直接报错退出，不自动顺延**——宿主站按固定端口跨站引用本站产物（`embed/sire-rank-chart.js` + `derived/`），顺延就是静默失配。
+- 本地响应头对齐线上：`Access-Control-Allow-Origin: *`（跨站 embed 必需）+ 非图片资源 `Cache-Control: no-cache`（防陈旧 JS/CSS）。
 - 页面为纯静态（ECharts 本地 `site/vendor/echarts.min.js`），`fetch` 读取 `data/` 与 `derived/` 下的 JSON，无任何构建框架依赖。
 - GitHub Pages 部署时上传 `_site/` 即可（`site/` 即 Pages 发布根）。
 

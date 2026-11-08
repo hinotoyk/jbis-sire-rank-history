@@ -136,7 +136,7 @@ window.addEventListener("resize", resizeAll);  // 跨断点分支移交 onChange
 | 2 | `site/index.html` | `<script src="device.js">`（先于 app.js）；`#rank-cards` 挂载点 |
 | 3 | `site/app.js` | `isNarrow` 改薄别名；`renderTable` 双路径 + `mbCardHTML`；`device.onChange` 翻转重渲染；MB 分页定参；resize 逻辑瘦身 |
 | 4 | `site/style.css` | `.rank-cards` 卡片样式；删 600 断点；720 断点内补卡片规则与 `:active` 态 |
-| 5 | 验证 | `npm run build` → 本地 9091 双端过一遍：PC 表格回归无变化；DevTools 手机模拟看卡片、断点拖拽翻转重渲染、点卡片加曲线、查看更多增量、4 套主题下卡片取色 |
+| 5 | 验证 | `npm run build` → 本地 9092 双端过一遍：PC 表格回归无变化；DevTools 手机模拟看卡片、断点拖拽翻转重渲染、点卡片加曲线、查看更多增量、4 套主题下卡片取色 |
 
 ## 五、验收标准
 
