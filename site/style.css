@@ -338,17 +338,42 @@ td.gap, .mb-gap { color: var(--muted); font-variant-numeric: tabular-nums; }
 }
 
 /* ---------- footer ---------- */
+/* 排布对齐 racing-calendar：flex 横排 + wrap + 居中，宽度够时整排一行（不换行），
+   窄屏才自然折行；版本徽章是同行末尾的 flex item，不单独占行。 */
 footer {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 12px 24px 32px;
+  padding: 12px 24px 4px;
   display: flex;
-  gap: 6px 26px;
   flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 4px 18px;
   border-top: 1px solid var(--line);
   font-size: 11px;
   letter-spacing: .08em;
   color: var(--muted);
+}
+/* 版本徽章：淡边框药丸（与 racing-calendar .ver 同款，取本站 token 上色） */
+.ver {
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  padding: 0 9px;
+  font-size: 10px;
+  line-height: 1.7;
+  color: var(--muted);
+  white-space: nowrap;
+}
+/* 署名行：footer 之后的独立收尾行，居中、比正文更淡（不抢内容注意力） */
+.powered {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px 28px;
+  text-align: center;
+  font-size: 11px;
+  letter-spacing: .5px;
+  color: var(--muted);
+  opacity: .8;
 }
 
 /* ---------- 动效与响应式 ---------- */
@@ -387,7 +412,8 @@ footer {
     white-space: nowrap;
   }
   .chart-tabs button.on { color: var(--ink); border-bottom-color: var(--accent); }
-  footer { padding: 10px 12px 24px; gap: 4px 18px; }
+  footer { padding: 10px 12px 4px; gap: 4px 18px; }
+  .powered { padding: 0 12px 20px; }
 
   /* 明细：MB 走卡片列表（app.js renderTable 双路径，表格 hidden）。
      容器不再限高内滚 —— 手机上外层页面 + 内层容器双滚动条体验差，自然滚动 */

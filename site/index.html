@@ -99,11 +99,15 @@
      脚本缺失/渲染失败时挂载点保持空白，无占位观感。 -->
 <div data-friend-links data-site="jbis" data-skin="jbis"></div>
 
+<!-- 收尾声明区（口径与 racing-calendar site/index.html 一致）：
+     静态站无构建注入，版本号取自 package.json 的 version（升版本时两处同步改），
+     powered 署名两站各写一处。 -->
 <footer>
-  <span>数据来源 JBIS（jbis.or.jp）</span>
-  <span>每日快照 · 全量收录 · 每日 12:30（JST）后自动更新</span>
-  <span>图表由 Apache ECharts 驱动</span>
+  <span>仅供个人学习、研究 · 赛马应援 · 非商业用途 · 请以官方发布为准</span>
+  <span>每日快照 · 全量收录 · 图表由 Apache ECharts 驱动</span>
+  <span class="ver">v1.2.0</span>
 </footer>
+<div class="powered">power by ディープ求索</div>
 
 <script src="vendor/echarts.min.js"></script>
 <script src="device.js"></script>
