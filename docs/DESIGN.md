@@ -517,6 +517,16 @@ npm start         # collect + build + serve 一条龙
 
 ---
 
+## 13. 部署版本指纹探测（2026-11-23）
+
+解决「线上更新后，老访客浏览器还拿旧数据」（浏览器 HTTP 缓存 + Cloudflare 边缘缓存叠加）。机制四兄弟站统一：
+
+- **构建期**：`src/build-site.js` 复制 site/ → _site/ 后写 `_site/version.json = { v: <git 短 SHA>, ts }`。任何更新都走 push main → 部署，v 必变，无人工维护点。
+- **浏览器侧**：`site/yj-version.js` 在页面加载 / 切回标签页 / 每 5 分钟用 `no-store + ?t=时间戳` 探测 version.json（约 60 字节，`?t` 变化绕过 CF 与 HTTP 缓存）；v 变化 → 写回新 v（防 reload 循环）→ `location.reload()`。`window.YJ_VERSION_SITE = "jbis"` 隔离 localStorage 键名（防未来同域子路径共存时互相踢皮球）。
+- **探测脚本引入**：site/index.html 与 embed-demo.html 各一行（`defer`）。
+
+---
+
 ## 附录 A：实测快照样本（真实数据，2026-10-10）
 
 年度別・中央（`ranking=1&y1=2026&kind=1&division=2&racetype1=1&racetype2=1`）前 3 行：

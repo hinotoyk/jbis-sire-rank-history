@@ -2,6 +2,7 @@
 // 板 = 类型 × 集計年度（board:"yearly"，如 t2-annual-central@2026）或 世代连续板（board:"cohort"，如 t4-gen-central-2023）
 import fs from "node:fs";
 import path from "node:path";
+import { execSync } from "node:child_process";
 import { TYPES, PERIODS } from "./config.js";
 
 const DATA_DIR = path.resolve("data");
@@ -63,6 +64,16 @@ function refDateOf(allDates, period, curDate) {
 fs.rmSync(OUT_DIR, { recursive: true, force: true });
 fs.cpSync(SITE_DIR, OUT_DIR, { recursive: true });
 fs.cpSync(DATA_DIR, path.join(OUT_DIR, "data"), { recursive: true });
+
+// 部署版本指纹（2026-11-23 定稿，配 site/yj-version.js 探测模块）：任何更新都走 push main →
+// 部署，v 必变；浏览器侧比对 version.json 感知新版 → 清缓存 + 刷新。git 不可用 → 时间戳兜底。
+fs.writeFileSync(path.join(OUT_DIR, "version.json"), JSON.stringify({
+  v: (() => {
+    try { return execSync("git rev-parse --short HEAD").toString().trim(); }
+    catch { return "dev-" + Date.now(); }
+  })(),
+  ts: Date.now(),
+}));
 
 const derivedRoot = path.join(OUT_DIR, "derived");
 fs.mkdirSync(path.join(derivedRoot, "sire-history"), { recursive: true });
